@@ -5,7 +5,7 @@ sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.
 
 # dependencies
 sudo dnf install -y --nobest docker-ce
-sudo dnf install -y nano git certbot python3-certbot-nginx
+sudo dnf install -y nano wget git certbot python3-certbot-nginx
 
 # setup
 sudo mkfs.ext4 /dev/sdb
