@@ -21,14 +21,13 @@ sudo mkdir /storage
 sudo mount /dev/sdb /storage
 sudo mkdir /storage/jenkins_home
 sudo chown 1000 /storage/jenkins_home
-sudo curl -O /storage/nginx/conf/ -L https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/nginx.conf
-sudo envsubst < /storage/nginx/conf/nginx.conf
-sudo chown 101 /storage/nginx/conf
+sudo mkdir -p /storage/nginx/conf.d
+sudo wget -O /storage/nginx/conf.d/.conf https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/nginx.conf
+envsubst < /storage/nginx/conf.d/.conf | sudo tee /storage/nginx/conf/nginx.conf
+sudo chown 101 /storage/nginx/conf.d
 sudo setsebool -P httpd_can_network_connect 1
 sudo sysctl net.ipv4.ip_forward=1
 sudo systemctl enable docker
 sudo systemctl start docker
-sudo docker pull staticfloat/nginx-certbot
-sudo docker pull jenkins/jenkins:lts
-sudo curl -L https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/docker-compose.yml
+sudo wget https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/docker-compose.yml
 sudo docker-compose up

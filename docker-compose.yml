@@ -9,7 +9,7 @@ services:
     environment:
       CERTBOT_EMAIL: ajsivesind@gmail.com
     volumes:
-      - ./storage/nginx/conf:/etc/nginx/conf:ro
+      - ./storage/nginx/conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
   jenkins:
     image: jenkins/jenkins:lts
