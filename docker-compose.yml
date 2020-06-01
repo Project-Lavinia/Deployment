@@ -1,0 +1,27 @@
+version: "3"
+services:
+  nginx:
+    restart: unless-stopped
+    image: staticfloat/nginx-certbot
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+    environment:
+      CERTBOT_EMAIL: ajsivesind@gmail.com
+    volumes:
+      - ./storage/nginx/conf:/etc/nginx/conf:ro
+      - letsencrypt:/etc/letsencrypt
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins
+    privileged: true
+    volumes:
+      - /storage/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+
+volumes:
+  letsencrypt:
