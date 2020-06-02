@@ -6,6 +6,7 @@ services:
     ports:
       - 80:80/tcp
       - 443:443/tcp
+    container_name: nginx
     environment:
       CERTBOT_EMAIL: ajsivesind@gmail.com
     volumes:
