@@ -30,4 +30,4 @@ sudo sysctl net.ipv4.ip_forward=1
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo wget https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/docker-compose.yml
-sudo /usr/local/bin/docker-compose up
+sudo /usr/local/bin/docker-compose up -d
