@@ -22,8 +22,8 @@ sudo mount /dev/sdb /storage
 sudo mkdir /storage/jenkins_home
 sudo chown 1000 /storage/jenkins_home
 sudo mkdir -p /storage/nginx/conf.d
-sudo curl -o /storage/nginx/conf.d/.conf https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/nginx.conf
-envsubst '$CLIENT_IP $CLIENT_DEV_IP $API_IP $API_DEV_IP' < /storage/nginx/conf.d/.conf | sudo tee /storage/nginx/conf.d/.conf
+sudo curl -o /storage/nginx/conf.d/nginx.conf https://raw.githubusercontent.com/Project-Lavinia/Deployment/master/nginx.conf
+envsubst '$CLIENT_IP $CLIENT_DEV_IP $API_IP $API_DEV_IP' < /storage/nginx/conf.d/nginx.conf | sudo tee /storage/nginx/conf.d/nginx.conf
 sudo chown 101 /storage/nginx/conf.d
 sudo setsebool -P httpd_can_network_connect 1
 sudo sysctl net.ipv4.ip_forward=1
