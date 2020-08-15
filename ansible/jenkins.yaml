@@ -1,0 +1,135 @@
+---
+- hosts: os_metadata_my_server_role=jenkins
+  become: true
+
+  vars_files:
+    - ../terraform/tf_ansible_vars.yaml
+
+  vars:
+    # Domains
+    jenkins_endpoint: "{{ inventory_hostname + '.' + zone_name }}"
+
+    # Jenkins
+    jenkins_http_port: 8080
+    jenkins_hostname: localhost
+    jenkins_package_state: latest
+    jenkins_plugins_state: latest
+    jenkins_home: /storage/jenkins
+    java_packages:
+      - java-1.8.0-openjdk
+    
+    # Certbot/Let's Encrypt
+    certbot_install_from_source: true
+    certbot_admin_email: "{{ letsencrypt_email }}"
+    certbot_create_if_missing: true
+    certbot_certs:
+      - domains:
+        - "{{ jenkins_endpoint }}"
+    
+    # Nginx
+    nginx_http_template_enable: true
+    nginx_http_template:
+      app:
+        template_file: http/default.conf.j2
+        conf_file_name: default.conf
+        conf_file_location: /etc/nginx/conf.d/
+        servers:
+          jenkins_server:
+            server_name: "{{ jenkins_endpoint }}"
+            listen:
+              listen_localhost:
+                ip: localhost
+                port: 443
+                ssl: true
+            ssl:
+              cert: /etc/letsencrypt/live/"{{ jenkins_endpoint }}"/fullchain.pem
+              key: /etc/letsencrypt/live/"{{ jenkins_endpoint }}"/privkey.pem
+          reverse_proxy:
+            locations:
+              jenkins:
+                location: /
+                proxy_set_header:
+                  header_host:
+                    name: Host
+                    value: $host:$server_port
+                  header_x_real_ip:
+                    name: X-Real-IP
+                    value: $remote_addr
+                  header_x_forwarded_for:
+                    name: X-Forwarded-For
+                    value: $proxy_add_x_forwarded_for
+                  header_x_forwarded_proto:
+                    name: X-Forwarded-Proto
+                    value: $scheme
+                proxy_redirect: http:// https://
+                proxy_pass: http://jenkins
+                proxy_read_timeout: 90s
+                proxy_http_version: 1.1
+                proxy_buffering: false
+        upstreams:
+          jenkins_upstream:
+            name: jenkins
+            servers:
+              jenkins_server_1:
+                address: "{{ jenkins_hostname }}"
+                port: "{{ jenkins_http_port }}"
+                health_check: max_fails=3 fail_timeout=0
+
+  pre_tasks:
+    - name: Upgrade system
+      dnf:
+        name: "*"
+        update_cache: yes
+        state: latest
+
+    - name: Create a filesystem on /dev/sdb
+      filesystem:
+        fstype: ext4
+        dev: /dev/sdb
+
+    - name: Mount volume
+      mount:
+        path: /storage
+        src: /dev/sdb
+        fstype: ext4
+        state: mounted
+
+    - name: Install dependencies
+      dnf: 
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - cronie
+        - epel-release
+
+  roles:
+    - role: geerlingguy.git
+    - role: geerlingguy.java
+    - role: geerlingguy.jenkins
+    - role: geerlingguy.certbot
+    - role: nginxinc.nginx
+
+  tasks:
+    - name: Flush handlers
+      meta: flush_handlers
+
+    - name: Wait for Jenkins to start up
+      wait_for:
+        timeout: 30
+        host: localhost:8080
+    
+    - name: Test secure connection to Jenkins
+      uri:
+        url: "{{ jenkins_endpoint }}"
+        status_code: 200
+      delegate_to: localhost
+      become: false
+
+    - name: Get Jenkins password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      changed_when: false
+      register: result
+
+    - name: Print Jenkins password
+      debug:
+        var: result.stdout

@@ -17,7 +17,11 @@ variable "network" {
 
 variable "volume_size" {
   default = 25
-}  
+}
+
+variable "zone_name" {
+    default = "lavinia.no"
+}
 
 # Security group defaults 
 variable "allow_ssh_from_v6" {

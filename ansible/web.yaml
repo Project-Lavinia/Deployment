@@ -1,0 +1,30 @@
+---
+- hosts: os_metadata_my_server_role=web
+  become: true
+
+  tasks:
+  - name: Upgrade system
+    dnf:
+      name: "*"
+      state: latest
+
+  - name: Install Nginx
+    dnf:
+      name: nginx
+      state: latest
+  
+  - name: Install letsencrypt
+    dnf:
+      name: letsencrypt
+      state: latest
+  
+  - name: Create letsencrypt directory
+    file:
+      name: /var/www/sites-enabled/default
+      state: absent
+
+  - name: Start NGiNX
+    systemd:
+      name: nginx
+      state: started
+      enabled: yes
