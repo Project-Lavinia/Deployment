@@ -72,6 +72,7 @@ variable "image" {
 variable "role_flavor" {
   type = map(string)
   default = {
+    "load_balancer" = "m1.small"
     "web" = "m1.small"
     "api"  = "m1.medium"
     "jenkins" = "m1.medium"

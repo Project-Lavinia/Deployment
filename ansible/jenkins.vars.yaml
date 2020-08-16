@@ -1,0 +1,14 @@
+# Domains
+jenkins_endpoint: "{{ inventory_hostname + '.' + zone_name }}"
+
+# Jenkins
+jenkins_http_port: 8080
+jenkins_hostname: localhost
+jenkins_ip: 127.0.0.1
+jenkins_local: "{{ jenkins_hostname + ':' + jenkins_http_port|string }}"
+jenkins_ip_addr: "{{ jenkins_ip + ':' + jenkins_http_port|string }}"
+jenkins_package_state: latest
+jenkins_plugins_state: latest
+jenkins_home: /storage/jenkins
+java_packages:
+    - java-1.8.0-openjdk

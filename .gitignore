@@ -2,4 +2,5 @@
 inventory
 terraform.tfstate
 terraform.tfstate.backup
+private.yaml
 keystone_rc.sh

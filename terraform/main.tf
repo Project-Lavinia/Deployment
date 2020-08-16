@@ -10,7 +10,7 @@ resource "openstack_compute_keypair_v2" "keypair" {
 resource "openstack_compute_instance_v2" "web_instance" {
   region      = var.region
   count       = lookup(var.role_count, "web", 0)
-  name        = "${var.region}-web-${count.index}"
+  name        = "web-${count.index}"
   image_name  = var.image
   flavor_name = lookup(var.role_flavor, "web", "unknown")
 
@@ -46,7 +46,7 @@ resource "openstack_compute_instance_v2" "web_instance" {
 resource "openstack_compute_instance_v2" "api_instance" {
   region      = var.region
   count       = lookup(var.role_count, "api", 0)
-  name        = "${var.region}-api-${count.index}"
+  name        = "api-${count.index}"
   image_name  = var.image
   flavor_name = lookup(var.role_flavor, "api", "unknown")
 
@@ -82,8 +82,7 @@ resource "openstack_compute_instance_v2" "api_instance" {
 
 resource "openstack_compute_instance_v2" "jenkins_instance" {
   region	= var.region
-  count		= lookup(var.role_count, "jenkins", 0)
-  name		= "${var.region}-jenkins-${count.index}"
+  name		= "jenkins"
   image_name	= var.image
   flavor_name	= lookup(var.role_flavor, "jenkins", "unknown")
 
@@ -115,6 +114,48 @@ resource "openstack_compute_instance_v2" "jenkins_instance" {
   }
 }
 
+# Load balancer
+resource "openstack_compute_instance_v2" "load_balancer_instance" {
+  region      = var.region
+  name        = "load-balancer"
+  image_name  = var.image
+  flavor_name = lookup(var.role_flavor, "load_balancer", "unknown")
+
+  key_pair = "aj-key"
+  security_groups = [
+    "default",
+    "${terraform.workspace}-${var.name}-ssh",
+    "${terraform.workspace}-${var.name}-http",
+  ]
+
+  network {
+    name = var.network
+  }
+
+  lifecycle {
+    ignore_changes = [image_name]
+  }
+
+  depends_on = [
+    openstack_networking_secgroup_v2.instance_ssh_access,
+    openstack_networking_secgroup_v2.instance_http_access,
+  ]
+
+  metadata = {
+    ssh_user            = "centos"
+    prefer_ipv6         = false
+    python_bin          = "/usr/bin/python3"
+    my_server_role      = "load_balancer"
+  }
+}
+
+# DNS Zone
+resource "openstack_dns_zone_v2" "lavinia_no" {
+    name        = "${var.zone_name}."
+    email       = "ajsivesind@gmail.com"
+    description = "Lavinia root zone"
+}
+
 # Volume
 resource "openstack_blockstorage_volume_v2" "volume" {
   name = "jenkins"
@@ -123,7 +164,7 @@ resource "openstack_blockstorage_volume_v2" "volume" {
 
 # Attach volume
 resource "openstack_compute_volume_attach_v2" "attach_vol" {
-  instance_id = openstack_compute_instance_v2.jenkins_instance[0].id
+  instance_id = openstack_compute_instance_v2.jenkins_instance.id
   volume_id   = openstack_blockstorage_volume_v2.volume.id
 }
 
