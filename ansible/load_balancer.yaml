@@ -22,8 +22,8 @@
     certbot_create_if_missing: true
     certbot_certs:
       - domains:
-        - "{{ client_endpoint }}"
         - "{{ api_endpoint }}"
+        - "{{ client_endpoint }}"
 
 
   pre_tasks:
