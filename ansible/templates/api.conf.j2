@@ -54,6 +54,13 @@ http {
         }
     }
 
+    server {
+        server_name {{ api_endpoint }};
+        listen 80;
+
+        return 301 https://$host$request_uri;
+    }
+
     upstream api {
        server {{ api_ip_addr }} fail_timeout=0;
     }

@@ -46,4 +46,11 @@ http {
             try_files $uri /index.html =404;
         }
     }
+
+    server {
+        server_name {{ web_endpoint }};
+        listen 80;
+
+        return 301 https://$host$request_uri;
+    }
 }

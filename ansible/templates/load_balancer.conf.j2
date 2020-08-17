@@ -53,6 +53,13 @@ http {
     }
 
     server {
+        server_name {{ api_endpoint }};
+        listen 80;
+
+        return 301 https://$host$request_uri;
+    }
+
+    server {
         server_name {{ client_endpoint }};
         listen 443 ssl;
         ssl_certificate     /etc/letsencrypt/live/{{ api_endpoint }}/fullchain.pem;
@@ -71,6 +78,13 @@ http {
             proxy_request_buffering off;
             proxy_buffering off;
         }
+    }
+
+    server {
+        server_name {{ client_endpoint }};
+        listen 80;
+
+        return 301 https://$host$request_uri;
     }
 
     upstream api {

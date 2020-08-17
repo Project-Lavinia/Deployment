@@ -53,6 +53,14 @@ http {
         }
     }
 
+    server {
+        server_name {{ jenkins_endpoint }};
+        listen 80;
+
+        return 301 https://$host$request_uri;
+    }
+
+
     upstream jenkins {
        server {{ jenkins_ip_addr }} fail_timeout=0;
     }
