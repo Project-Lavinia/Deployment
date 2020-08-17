@@ -1,0 +1,12 @@
+[Unit]
+Description=Lavinia API
+[Service]
+WorkingDirectory={{ netcore_path }}
+ExecStart=dotnet Lavinia-api.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=lavinia-api
+User=centos
+Environment=ASPNETCORE_ENVIRONMENT=Production
+[Install]
+WantedBy=multi-user.target

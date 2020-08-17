@@ -86,6 +86,12 @@
       - name: Harden Nginx
         include_role:
           name: dev-sec.nginx-hardening
+    
+      - name: Force custom Content Security Policy
+        lineinfile:
+          path: /etc/nginx/conf.d/90.hardening.conf
+          state: absent
+          regexp: 'Content-Security-Policy'
       
       - name: Start Nginx
         service:

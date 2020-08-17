@@ -117,7 +117,7 @@ resource "openstack_compute_instance_v2" "jenkins_instance" {
 # Load balancer
 resource "openstack_compute_instance_v2" "load_balancer_instance" {
   region      = var.region
-  name        = "load-balancer"
+  name        = "load_balancer"
   image_name  = var.image
   flavor_name = lookup(var.role_flavor, "load_balancer", "unknown")
 
@@ -176,6 +176,15 @@ resource "local_file" "ansible_vars" {
 
     zone_name: ${var.zone_name}
 
+    client_urls:
+      %{ for name in openstack_compute_instance_v2.web_instance.*.name ~}
+- ${name}.${var.zone_name}
+      %{ endfor ~}
+
+    api_urls:
+      %{ for name in openstack_compute_instance_v2.api_instance.*.name ~}
+- ${name}.${var.zone_name}
+      %{ endfor ~}
     DOC
   filename = "./tf_ansible_vars.yaml"
 }

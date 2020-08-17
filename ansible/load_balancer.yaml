@@ -1,0 +1,108 @@
+---
+- hosts: os_metadata_my_server_role=load_balancer
+  become: true
+
+  vars_files:
+    - ../terraform/tf_ansible_vars.yaml
+    - private.yaml
+
+  vars:
+    # Security
+    security_sudoers_passwordless:
+      - centos
+
+    # Domains
+    api_endpoint: "api.{{ zone_name }}"
+    client_endpoint: "{{ zone_name }}"
+
+    # Certbot/Let's Encrypt
+    certbot_install_from_source: false
+    certbot_pkg_mgr: dnf
+    certbot_admin_email: "{{ letsencrypt_email }}"
+    certbot_create_if_missing: true
+    certbot_certs:
+      - domains:
+        - "{{ client_endpoint }}"
+        - "{{ api_endpoint }}"
+
+
+  pre_tasks:
+    - name: Ensure Terraform variables have been imported
+      assert:
+        that:
+          - zone_name is defined
+
+    - name: Ensure private variables have been imported
+      assert:
+        that:
+          - letsencrypt_email is defined
+
+    - name: Add EPEL repository
+      dnf:
+        name: epel-release
+        state: latest
+
+    - name: Upgrade system
+      dnf:
+        name: "*"
+        state: latest
+    
+    - name: Enable httpd_can_network_connect
+      seboolean:
+        name: httpd_can_network_connect
+        persistent: yes
+        state: yes
+    
+    - name: Template Nginx config
+      template:
+        src: templates/load_balancer.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify: Restart Nginx
+
+  roles:
+    - role: geerlingguy.security
+    - role: dev-sec.ssh-hardening
+    - role: geerlingguy.git
+    - role: certbot
+  
+  tasks:
+    - name: Install Nginx
+      dnf:
+        name: nginx
+        state: latest
+    
+    - name: Template Nginx config
+      template:
+        src: templates/load_balancer.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify: Restart Nginx
+    
+    - name: Harden Nginx
+      include_role:
+        name: dev-sec.nginx-hardening
+    
+    - name: Force custom Content Security Policy
+      lineinfile:
+        path: /etc/nginx/conf.d/90.hardening.conf
+        state: absent
+        regexp: 'Content-Security-Policy'
+
+    - name: Start Nginx
+      service:
+        name: nginx
+        enabled: true
+        state: started
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+    
+    - name: Refresh API service
+      systemd:
+        daemon_reload: yes
+        name: api
+        enabled: yes
+        state: restarted
+      

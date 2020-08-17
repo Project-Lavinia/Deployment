@@ -3,3 +3,9 @@
 
 zone_name: lavinia.no
 
+client_urls:
+  - web-0.lavinia.no
+  
+api_urls:
+  - api-0.lavinia.no
+  
