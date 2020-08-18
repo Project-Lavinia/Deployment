@@ -95,10 +95,6 @@
         dest: /etc/nginx/nginx.conf
       notify: Restart Nginx
     
-    - name: Harden Nginx
-      include_role:
-        name: dev-sec.nginx-hardening
-    
     - name: Start Nginx
       service:
         name: nginx
