@@ -124,10 +124,14 @@
     - role: geerlingguy.java
     - role: geerlingguy.jenkins
     - role: ocha.yarn
-    - role: ocha.dotnet-core
     - role: certbot
   
   tasks:
+    - name: Install .Net Core
+      dnf:
+        name: dotnet-sdk-3.1
+        state: latest
+
     - name: Install Nginx
       dnf:
         name: nginx
