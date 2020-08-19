@@ -4,12 +4,10 @@
 
   vars_files:
     - ../terraform/tf_ansible_vars.yaml
+    - paths.yaml
     - private.yaml
 
   vars:
-    # .Net Core
-    netcore_path: /var/netcore
-
     # Security
     security_sudoers_passwordless:
       - centos
@@ -40,6 +38,11 @@
         that:
           - zone_name is defined
 
+    - name: Ensure paths variables have been imported
+      assert:
+        that:
+          - netcore_path is defined
+
     - name: Ensure private variables have been imported
       assert:
         that:
@@ -63,6 +66,7 @@
     - name: Create .Net Core directory
       file:
         name: "{{ netcore_path }}"
+        owner: centos
         mode: 0755
         state: directory
         recurse: yes

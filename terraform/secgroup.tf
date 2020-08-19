@@ -32,6 +32,17 @@ resource "openstack_networking_secgroup_rule_v2" "rule_ssh_access_ipv4" {
   security_group_id = openstack_networking_secgroup_v2.instance_ssh_access.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "rule_jenkins_ssh_access_ipv4" {
+  region            = var.region
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 22
+  port_range_max    = 22
+  remote_ip_prefix  = "${openstack_compute_instance_v2.jenkins_instance.access_ip_v4}/32"
+  security_group_id = openstack_networking_secgroup_v2.instance_ssh_access.id
+}
+
 # Allow ssh from IPv6 net
 resource "openstack_networking_secgroup_rule_v2" "rule_ssh_access_ipv6" {
   region            = var.region
@@ -42,6 +53,17 @@ resource "openstack_networking_secgroup_rule_v2" "rule_ssh_access_ipv6" {
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = var.allow_ssh_from_v6[count.index]
+  security_group_id = openstack_networking_secgroup_v2.instance_ssh_access.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "rule_jenkins_ssh_access_ipv6" {
+  region            = var.region
+  direction         = "ingress"
+  ethertype         = "IPv6"
+  protocol          = "tcp"
+  port_range_min    = 22
+  port_range_max    = 22
+  remote_ip_prefix  = "${substr(openstack_compute_instance_v2.jenkins_instance.access_ip_v6, 1, length(openstack_compute_instance_v2.jenkins_instance.access_ip_v6)-2)}/128"
   security_group_id = openstack_networking_secgroup_v2.instance_ssh_access.id
 }
 

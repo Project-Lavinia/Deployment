@@ -5,13 +5,14 @@
     vars_files:
       - ../terraform/tf_ansible_vars.yaml
       - private.yaml
+      - paths.yaml
   
     vars:
       # Web
-      web_root: /var/www
       nginx_user: nginx
 
       # Security
+      sftp_enabled: true
       security_sudoers_passwordless:
         - centos
   
@@ -33,6 +34,11 @@
         assert:
           that:
             - zone_name is defined
+
+      - name: Ensure path variables have been imported
+        assert:
+          that:
+            - web_root is defined
   
       - name: Ensure private variables have been imported
         assert:
@@ -52,6 +58,7 @@
       - name: Create web root
         file:
           name: "{{ web_root }}"
+          owner: centos
           mode: 0755
           state: directory
           recurse: yes

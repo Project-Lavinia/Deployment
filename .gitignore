@@ -5,3 +5,6 @@ terraform.tfstate.backup
 private.yaml
 keystone_rc.sh
 *.retry
+tf_ansible_vars.yaml
+clients.txt
+apis.txt

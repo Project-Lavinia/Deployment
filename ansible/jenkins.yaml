@@ -5,9 +5,11 @@
   vars_files:
     - ../terraform/tf_ansible_vars.yaml
     - private.yaml
+    - paths.yaml
 
   vars:
     # Security
+    sftp_enabled: true
     security_sudoers_passwordless:
       - centos
 
@@ -25,6 +27,9 @@
     jenkins_home: /storage/jenkins
     java_packages:
       - java-1.8.0-openjdk
+
+    # .Net Core
+    dotnet_package: "dotnet-sdk-3.1"
     
     # Certbot/Let's Encrypt
     certbot_install_from_source: false
@@ -41,6 +46,11 @@
       assert:
         that:
           - zone_name is defined
+
+    - name: Ensure path variables have been imported
+      assert:
+        that:
+          - private_cert_path is defined
 
     - name: Ensure private variables have been imported
       assert:
@@ -69,6 +79,38 @@
         fstype: ext4
         state: mounted
     
+    - name: Make ssh dir
+      file:
+        name: /storage/.ssh
+        state: directory
+        recurse: yes
+    
+    - name: Copy public key
+      copy:
+        src: ~/.ssh/id_rsa.pub
+        dest: "{{ public_cert_path }}"
+        owner: jenkins
+        group: jenkins
+        mode: '0666'
+    
+    - name: Copy private key
+      copy:
+        src: ~/.ssh/id_rsa
+        dest: "{{ private_cert_path }}"
+        owner: jenkins
+        group: jenkins
+        mode: '0600'
+
+    - name: Copy client list
+      copy:
+        src: ../terraform/clients.txt
+        dest: "{{ client_list_path }}"
+
+    - name: Copy api list
+      copy:
+        src: ../terraform/apis.txt
+        dest: "{{ api_list_path }}"
+    
     - name: Enable httpd_can_network_connect
       seboolean:
         name: httpd_can_network_connect
@@ -76,11 +118,13 @@
         state: yes
 
   roles:
-    - role: geerlingguy.security
-    - role: dev-sec.ssh-hardening
+    #- role: geerlingguy.security
+    #- role: dev-sec.ssh-hardening
     - role: geerlingguy.git
     - role: geerlingguy.java
     - role: geerlingguy.jenkins
+    - role: ocha.yarn
+    - role: ocha.dotnet-core
     - role: certbot
   
   tasks:

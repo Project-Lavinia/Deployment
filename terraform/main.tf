@@ -188,3 +188,23 @@ resource "local_file" "ansible_vars" {
     DOC
   filename = "./tf_ansible_vars.yaml"
 }
+
+# Export list of client URLs
+resource "local_file" "client_list" {
+  content = <<-DOC
+%{ for addr in openstack_compute_instance_v2.web_instance.*.access_ip_v4 ~}
+${addr}
+%{ endfor ~}
+DOC
+  filename = "./clients.txt"
+}
+
+# Export list of API URLs
+resource "local_file" "api_list" {
+  content = <<-DOC
+%{ for addr in openstack_compute_instance_v2.api_instance.*.access_ip_v4 ~}
+${addr}
+%{ endfor ~}
+DOC
+  filename = "./apis.txt"
+}
