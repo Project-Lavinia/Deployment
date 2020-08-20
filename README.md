@@ -75,10 +75,10 @@ It is safe to modify both the number of web and api instanced at the same time, 
     1. `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml`
     2. `ansible-playbook -i inventory load_balancer.yaml`
     3. `ansible-playbook -i inventory jenkins.yaml`
-6. In the `Lavinia-client` or `Lavinia-api` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section or remove copies of it, for each web instance you have created/removed. Ensure that the remaining config names match the names of the remaining instances.
-7. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH -> SSH Servers: Add/remove a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
+4. In the `Lavinia-client` or `Lavinia-api` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section or remove copies of it, for each web instance you have created/removed. Ensure that the remaining config names match the names of the remaining instances.
+5. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH -> SSH Servers: Add/remove a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
     * Name: web-0 (the number is the index of the instance)
     * Hostname: web-0.example.com (replace example.com with your domain)
     * Username: centos
     * Remote Directory: \<web_root>/ (**Note the trailing forward-slash**. Replace \<web-root> with what is defined in `Deployment/ansible/paths.yaml`, for api use netcore_path instead.)
-8. When the repository changes are pushed to master and the Jenkins configuration has been updated, initialise a new build in the Lavinia-client/Lavinia-api branch.
+6. When the repository changes are pushed to master and the Jenkins configuration has been updated, initialise a new build in the Lavinia-client/Lavinia-api branch.
