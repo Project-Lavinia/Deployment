@@ -28,18 +28,19 @@ This repository contains all deployment and server configuration details for Lav
 9. In the `Deployment/terraform` directory, use the command `terraform init`
 10. **If you are creating a new instance** and if the previous command completed successfully:
     1. In `Deployment/terraform` do `terraform apply`
-    2. In `Deployment/ansible` do `ansible-playbook -i inventory api.yaml`
-    3. In `Deployment/ansible` do `ansible-playbook -i inventory web.yaml`
-    4. In `Deployment/ansible` do `ansible-playbook -i inventory load_balancer.yaml`
-    5. In `Deployment/ansible` do `ansible-playbook -i inventory jenkins.yaml`
-    6. Open `https://jenkins.<your domain>` in your browser
-    7. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
-    8. In Jenkins, install the following jenkins plugins:
+    2. In `Deployment/ansible` do:
+        1. `ansible-playbook -i inventory api.yaml`
+        2. `ansible-playbook -i inventory web.yaml`
+        3. `ansible-playbook -i inventory load_balancer.yaml`
+        4. `ansible-playbook -i inventory jenkins.yaml`
+    3. Open `https://jenkins.<your domain>` in your browser
+    4. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
+    5. In Jenkins, install the following jenkins plugins:
         * Blue Ocean
         * Pipeline Utility Steps
         * Publish Over SSH
-    9. In Github -> Personal access tokens: Create a new access token called Jenkins_Hooks with the permission: `admin:org_hook`
-    10. In Jenkins -> Manage Jenkins -> Configure System -> GitHub:
+    6. In Github -> Personal access tokens: Create a new access token called Jenkins_Hooks with the permission: `admin:org_hook`
+    7. In Jenkins -> Manage Jenkins -> Configure System -> GitHub:
         * Name: `GitHub`
         * API URL: leave the default value
         * Credentials -> Add -> Jenkins:
@@ -50,7 +51,7 @@ This repository contains all deployment and server configuration details for Lav
             * ID: github_hooks
             * Description: Github Hooks
         * Manage hooks: checked
-    11. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH:
+    8. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH:
         * Passphrase: leave it empty
         * Path to key: /storage/.ssh/id_rsa
         * SSH Servers: Add a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
@@ -58,10 +59,10 @@ This repository contains all deployment and server configuration details for Lav
             * Hostname: web-0.example.com (replace example.com with your domain)
             * Username: centos
             * Remote Directory: \<web_root>/ (**Note the trailing forward-slash**. Replace \<web-root> with what is defined in `Deployment/ansible/paths.yaml`, for api use netcore_path instead.)
-    12. In the `Lavinia-client` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section once for each web instance you have created, and change the configName to match each instance name. Eg. web-0, web-1, etc.
-    13. Repeat the step above in the `Lavinia-api` repository, but use the names api-0, api-1, etc. instead.
-    14. When all the changes are pushed to the respective repositories; in Jenkins -> Blue Ocean and create two new pipelines (for Lavinia-API and Lavinia-Client), it should assist you with GitHub configuration
-    15. If the previous step did not initialise a new build of each pipeline, do so manually.
+    9. In the `Lavinia-client` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section once for each web instance you have created, and change the configName to match each instance name. Eg. web-0, web-1, etc.
+    10. Repeat the step above in the `Lavinia-api` repository, but use the names api-0, api-1, etc. instead.
+    11. When all the changes are pushed to the respective repositories; in Jenkins -> Blue Ocean and create two new pipelines (for Lavinia-API and Lavinia-Client), it should assist you with GitHub configuration
+    12. If the previous step did not initialise a new build of each pipeline, do so manually.
     
 
 
