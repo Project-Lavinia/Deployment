@@ -67,11 +67,14 @@ This repository contains all deployment and server configuration details for Lav
 
 
 ## Add/remove web/api instances
+It is safe to modify both the number of web and api instanced at the same time, just perform the actions for both web and api at the points where you should do one or the other.
+
 1. Modify the number of instances in `Deployment/terraform/variables.tf`
 2. In the `Deployment/terraform` directory, use the command `terraform apply`
-3. In the `Deployment/ansible` directory, do `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml` depending on if you modified the number of web or api instances.
-4. In `Deployment/ansible` do `ansible-playbook -i inventory load_balancer.yaml`
-5. In `Deployment/ansible` do `ansible-playbook -i inventory jenkins.yaml`
+3. In the `Deployment/ansible` directory, do:
+    1. `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml`
+    2. `ansible-playbook -i inventory load_balancer.yaml`
+    3. `ansible-playbook -i inventory jenkins.yaml`
 6. In the `Lavinia-client` or `Lavinia-api` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section or remove copies of it, for each web instance you have created/removed. Ensure that the remaining config names match the names of the remaining instances.
 7. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH -> SSH Servers: Add/remove a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
     * Name: web-0 (the number is the index of the instance)
