@@ -95,7 +95,7 @@
     
     - name: Copy private key
       copy:
-        src: ~/.ssh/id_rsa
+        src: ~/.ssh/id_rsa.rsa
         dest: "{{ private_cert_path }}"
         owner: jenkins
         group: jenkins
