@@ -111,6 +111,12 @@
         src: ../terraform/apis.txt
         dest: "{{ api_list_path }}"
     
+    - name: Template environment variables
+      template:
+        src: templates/jenkins_vars.properties.j2
+        dest: /storage/jenkins_vars.properties
+        mode: 0755
+    
     - name: Enable httpd_can_network_connect
       seboolean:
         name: httpd_can_network_connect
