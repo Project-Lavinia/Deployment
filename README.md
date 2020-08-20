@@ -29,7 +29,7 @@ This repository contains all deployment and server configuration details for Lav
 10. **If you are creating a new instance** and if the previous command completed successfully:
     1. In `Deployment/terraform` do `terraform apply`
     2. In `Deployment/ansible` do:
-        1. Setup ansible inventory, as per [this guide](https://docs.nrec.no/terraform-part4.html#ansible-inventory-from-terraform-state) (The inventory directory should have the path Deployment/ansible/inventory)
+        1. Setup ansible inventory, as per [this guide](https://docs.nrec.no/terraform-part4.html#ansible-inventory-from-terraform-state) (The inventory directory should have the path `Deployment/ansible/inventory`)
         2. `ansible-playbook -i inventory api.yaml`
         3. `ansible-playbook -i inventory web.yaml`
         4. `ansible-playbook -i inventory load_balancer.yaml`
