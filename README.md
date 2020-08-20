@@ -29,10 +29,11 @@ This repository contains all deployment and server configuration details for Lav
 10. **If you are creating a new instance** and if the previous command completed successfully:
     1. In `Deployment/terraform` do `terraform apply`
     2. In `Deployment/ansible` do:
-        1. `ansible-playbook -i inventory api.yaml`
-        2. `ansible-playbook -i inventory web.yaml`
-        3. `ansible-playbook -i inventory load_balancer.yaml`
-        4. `ansible-playbook -i inventory jenkins.yaml`
+        1. Setup ansible inventory, as per [this guide](https://docs.nrec.no/terraform-part4.html#ansible-inventory-from-terraform-state) (The inventory directory should have the path Deployment/ansible/inventory)
+        2. `ansible-playbook -i inventory api.yaml`
+        3. `ansible-playbook -i inventory web.yaml`
+        4. `ansible-playbook -i inventory load_balancer.yaml`
+        5. `ansible-playbook -i inventory jenkins.yaml`
     3. Open `https://jenkins.<your domain>` in your browser
     4. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
     5. In Jenkins, install the following jenkins plugins:
