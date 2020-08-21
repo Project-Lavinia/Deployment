@@ -1,0 +1,21 @@
+---
+  - hosts: web
+    become: true
+  
+    tasks:
+      - name: Deploy new artifacts
+        synchronize:
+          src: {{ "'{{ lookup(\"env\", \"WORKSPACE\") }}/dist'" }}
+          dest: {{ web_root }}
+          delete: yes
+          recursive: yes
+    
+      - name: Restore file permissions
+        file:
+          path: {{ web_root }}
+          owner: centos
+          mode: 0755
+          recurse: yes
+      
+      - name: Allow Nginx to serve web root
+        command: chcon -R -t httpd_sys_content_t {{ web_root }}/

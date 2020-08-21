@@ -101,25 +101,38 @@
         group: jenkins
         mode: '0600'
 
-    - name: Copy client list
+    - name: Copy host list
       copy:
-        src: ../terraform/clients.txt
-        dest: "{{ client_list_path }}"
+        src: ../terraform/host_list
+        dest: "{{ host_list_path }}"
 
-    - name: Copy api list
-      copy:
-        src: ../terraform/apis.txt
-        dest: "{{ api_list_path }}"
-    
-    - name: Template environment variables
+    - name: Template web deployment
       template:
-        src: templates/jenkins_vars.properties.j2
-        dest: /storage/jenkins_vars.properties
+        src: templates/web_deploy.yaml.j2
+        dest: /storage/web_deploy.yaml
+        mode: 0755
+
+    - name: Template api deployment
+      template:
+        src: templates/api_deploy.yaml.j2
+        dest: /storage/api_deploy.yaml
         mode: 0755
     
     - name: Enable httpd_can_network_connect
       seboolean:
         name: httpd_can_network_connect
+        persistent: yes
+        state: yes
+
+    - name: Enable rsync_client
+      seboolean:
+        name: rsync_client
+        persistent: yes
+        state: yes
+
+    - name: Enable rsync 
+      seboolean:
+        name: rsync_full_access
         persistent: yes
         state: yes
 
@@ -136,6 +149,11 @@
     - name: Install .Net Core
       dnf:
         name: dotnet-sdk-3.1
+        state: latest
+    
+    - name: Install Ansible
+      dnf:
+        name: ansible
         state: latest
 
     - name: Install Nginx

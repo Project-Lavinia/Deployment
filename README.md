@@ -26,23 +26,22 @@ This repository contains all deployment and server configuration details for Lav
 ## Set up a new instance
 1. Complete the First time set-up.
 2. Generate an SSH key pair by following the first code-block of [this guide](https://docs.nrec.no/create-virtual-machine.html#importing-an-existing-key).
-3. Make a copy of the key `sudo cp ~/.ssh/id_rsa ~/.ssh/id_rsa.rsa`
-4. Convert the new key from OpenSSH to RSA (Used by Jenkins) `sudo ssh-keygen -p -N "" -m pem -f ~/.ssh/id_rsa.rsa`
-5. Log into your domain registrar and change the name servers of your domain as according to [this guide](https://docs.nrec.no/dns.html#when-to-use-the-dns-service). (If you encounter problems, try using ns1.uh-iaas.no and ns2.uh-iaas.no, instead of the nrec domain)
-6. In `Deployment/terraform` do `terraform apply`
-7. In `Deployment/ansible` do:
+3. Generate a second key in the directory `~/.ssh/jenkins/`
+4. Log into your domain registrar and change the name servers of your domain as according to [this guide](https://docs.nrec.no/dns.html#when-to-use-the-dns-service). (If you encounter problems, try using ns1.uh-iaas.no and ns2.uh-iaas.no, instead of the nrec domain)
+5. In `Deployment/terraform` do `terraform apply`
+6. In `Deployment/ansible` do:
     1. `ansible-playbook -i inventory api.yaml`
     2. `ansible-playbook -i inventory web.yaml`
     3. `ansible-playbook -i inventory load_balancer.yaml`
     4. `ansible-playbook -i inventory jenkins.yaml`
-8. Open `https://jenkins.<your domain>` in your browser
-9. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
-10. In Jenkins, install the following jenkins plugins:
+7. Open `https://jenkins.<your domain>` in your browser
+8. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
+9. In Jenkins, install the following jenkins plugins:
     * Blue Ocean
-    * Pipeline Utility Steps
-    * Publish Over SSH
-11. In Github -> Personal access tokens: Create a new access token called Jenkins_Hooks with the permission: `admin:org_hook`
-12. In Jenkins -> Manage Jenkins -> Configure System -> GitHub:
+    * Ansible plugin
+    * SSH Credentials Plugin
+10. In Github -> Personal access tokens: Create a new access token called Jenkins_Hooks with the permission: `admin:org_hook`
+11. In Jenkins -> Manage Jenkins -> Configure System -> GitHub:
     * Name: `GitHub`
     * API URL: leave the default value
     * Credentials -> Add -> Jenkins:
@@ -53,18 +52,15 @@ This repository contains all deployment and server configuration details for Lav
         * ID: github_hooks
         * Description: Github Hooks
     * Manage hooks: checked
-13. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH:
-    * Passphrase: leave it empty
-    * Path to key: /storage/.ssh/id_rsa
-    * SSH Servers: Add a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
-        * Name: web-0 (the number is the index of the instance)
-        * Hostname: web-0.example.com (replace example.com with your domain)
-        * Username: centos
-        * Remote Directory: \<web_root>/ (**Note the trailing forward-slash**. Replace \<web-root> with what is defined in `Deployment/ansible/paths.yaml`, for api use netcore_path instead.)
-14. In the `Lavinia-client` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section once for each web instance you have created, and change the configName to match each instance name. Eg. web-0, web-1, etc.
-15. Repeat the step above in the `Lavinia-api` repository, but use the names api-0, api-1, etc. instead.
-16. When all the changes are pushed to the respective repositories; in Jenkins -> Blue Ocean and create two new pipelines (for Lavinia-API and Lavinia-Client), it should assist you with GitHub configuration
-17. If the previous step did not initialise a new build of each pipeline, do so manually.
+12. In Jenkins -> Manage Jenkins -> Manage Credentials -> Stores scoped to Jenkins: Jenkins -> System: Global credentials -> Add Credentials:
+    * Scope: Global
+    * ID: ansible_key
+    * Description: SSH key for Ansible
+    * Username: centos
+    * Private Key: Enter directly -> Paste the contents of the file `~/.ssh/jenkins/id_rsa`
+    * Passphrase: Leave empty
+15. In Jenkins -> Blue Ocean: create two new pipelines (for Lavinia-API and Lavinia-Client), it should assist you with GitHub configuration
+16. If the previous step did not initialise a new build of each pipeline, do so manually.
     
 
 
@@ -77,10 +73,4 @@ It is safe to modify both the number of web and api instanced at the same time, 
     1. `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml`
     2. `ansible-playbook -i inventory load_balancer.yaml`
     3. `ansible-playbook -i inventory jenkins.yaml`
-4. In the `Lavinia-client` or `Lavinia-api` repository edit the `Jenkinsfile`. Copy the sshPublisherDesc section or remove copies of it, for each web instance you have created/removed. Ensure that the remaining config names match the names of the remaining instances.
-5. In Jenkins -> Manage Jenkins -> Configure System -> Publish over SSH -> SSH Servers: Add/remove a server for each web and api instance (Here is a web example. Api instances would be api-0, api-1, etc. instead):
-    * Name: web-0 (the number is the index of the instance)
-    * Hostname: web-0.example.com (replace example.com with your domain)
-    * Username: centos
-    * Remote Directory: \<web_root>/ (**Note the trailing forward-slash**. Replace \<web-root> with what is defined in `Deployment/ansible/paths.yaml`, for api use netcore_path instead.)
-6. When the repository changes are pushed to master and the Jenkins configuration has been updated, initialise a new build in the Lavinia-client/Lavinia-api branch.
+4. When the repository changes are pushed to master and the Jenkins configuration has been updated, initialise a new build in the Lavinia-client/Lavinia-api branch.

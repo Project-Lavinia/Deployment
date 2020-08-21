@@ -2,5 +2,4 @@ web_root: /var/www
 netcore_path: /var/netcore
 private_cert_path: /storage/.ssh/id_rsa
 public_cert_path: /storage/.ssh/id_rsa.pub
-client_list_path: /storage/clients.txt
-api_list_path: /storage/apis.txt
+host_list_path: /storage/hosts

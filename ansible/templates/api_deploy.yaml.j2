@@ -1,0 +1,28 @@
+---
+  - hosts: api
+    become: true
+  
+    tasks:
+      - name: Stop the API service
+        service:
+          name: api
+          state: stopped
+
+      - name: Deploy new artifacts
+        synchronize:
+          src: {{ "'{{ lookup(\"env\", \"WORKSPACE\") }}/Lavinia-api/bin/Release/netcoreapp3.1'" }}
+          dest: {{ netcore_path }}
+          delete: yes
+          recursive: yes
+    
+      - name: Restore file permissions
+        file:
+          path: {{ netcore_path }}
+          owner: centos
+          mode: 0755
+          recurse: yes
+      
+      - name: Start the API service
+        service:
+          name: api
+          state: started
