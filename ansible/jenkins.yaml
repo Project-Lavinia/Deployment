@@ -78,28 +78,6 @@
         src: /dev/sdb
         fstype: ext4
         state: mounted
-    
-    - name: Make ssh dir
-      file:
-        name: /storage/.ssh
-        state: directory
-        recurse: yes
-    
-    - name: Copy public key
-      copy:
-        src: ~/.ssh/id_rsa.pub
-        dest: "{{ public_cert_path }}"
-        owner: jenkins
-        group: jenkins
-        mode: '0666'
-    
-    - name: Copy private key
-      copy:
-        src: ~/.ssh/id_rsa.rsa
-        dest: "{{ private_cert_path }}"
-        owner: jenkins
-        group: jenkins
-        mode: '0600'
 
     - name: Copy host list
       copy:
