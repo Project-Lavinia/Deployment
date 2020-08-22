@@ -115,8 +115,8 @@
         state: yes
 
   roles:
-    #- role: geerlingguy.security
-    #- role: dev-sec.ssh-hardening
+    - role: geerlingguy.security
+    - role: dev-sec.ssh-hardening
     - role: geerlingguy.git
     - role: geerlingguy.java
     - role: geerlingguy.jenkins
