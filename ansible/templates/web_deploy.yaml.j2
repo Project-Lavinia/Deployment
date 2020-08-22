@@ -5,7 +5,7 @@
     tasks:
       - name: Deploy new artifacts
         synchronize:
-          src: {{ "'{{ lookup(\"env\", \"WORKSPACE\") }}/dist'" }}
+          src: {{ "'{{ lookup(\"env\", \"WORKSPACE\") }}/dist/'" }}
           dest: {{ web_root }}
           delete: yes
           recursive: yes
