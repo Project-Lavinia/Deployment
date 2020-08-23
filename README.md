@@ -40,6 +40,7 @@ This repository contains all deployment and server configuration details for Lav
     * Blue Ocean
     * Ansible plugin
     * SSH Credentials Plugin
+    * Basic Branch Build Strategies Plugin
 10. In Github -> Personal access tokens: Create a new access token called Jenkins_Hooks with the permission: `admin:org_hook`
 11. In Jenkins -> Manage Jenkins -> Configure System -> GitHub:
     * Name: `GitHub`
@@ -49,18 +50,32 @@ This repository contains all deployment and server configuration details for Lav
         * Kind: Secret text
         * Scope: System
         * Secret: the Jenkins_Hooks access token
-        * ID: github_hooks
-        * Description: Github Hooks
+        * ID: `github_hooks`
+        * Description: `Github Hooks`
     * Manage hooks: checked
-12. In Jenkins -> Manage Jenkins -> Manage Credentials -> Stores scoped to Jenkins: Jenkins -> System: Global credentials -> Add Credentials:
+12. In Github -> Personal access tokens: Create a new access token called Jenkins_Release with the permission: `repo`
+13. In Jenkins -> Manage Jenkins -> Manage Credentials -> Stores: Jenkins -> System: Global credentials -> Add Credentials:
+    * Kind: Secret text
     * Scope: Global
-    * ID: ansible_key
-    * Description: SSH key for Ansible
-    * Username: centos
+    * Secret: the Jenkins_Release access token
+    * ID: `jenkins_release_token`
+    * Description: `Github token for uploading releases`
+14. In Jenkins -> Manage Jenkins -> Manage Credentials -> Stores scoped to Jenkins: Jenkins -> System: Global credentials -> Add Credentials:
+    * Scope: Global
+    * ID: `ansible_key`
+    * Description: `SSH key for Ansible`
+    * Username: `centos`
     * Private Key: Enter directly -> Paste the contents of the file `~/.ssh/jenkins/id_rsa`
     * Passphrase: Leave empty
 15. In Jenkins -> Blue Ocean: create two new pipelines (for Lavinia-API and Lavinia-Client), it should assist you with GitHub configuration
-16. If the previous step did not initialise a new build of each pipeline, do so manually.
+16. For each pipeline, In Jenkins -> Pipeline -> Configure -> Behaviors: Edit the Behaviors so they contain exactly:
+    * Discover branches (Exclude branches that are also filed as PRs)
+    * Discover pull requests from origin (Merging the pull request with the current target branch revision)
+    * Discover tags
+    * Clean before checkout (Delete untracked nested repositories: checked)
+    * Clean after checkout (Delete untracked nested repositories: checked)
+17. For each pipeline, In Jenkins -> Pipeline -> Configure -> Build strategied -> Add:
+    * Tags (Ignore tags newer than: (leave empty), Ignore tags older than: 7)
     
 
 
@@ -73,4 +88,3 @@ It is safe to modify both the number of web and api instanced at the same time, 
     1. `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml`
     2. `ansible-playbook -i inventory load_balancer.yaml`
     3. `ansible-playbook -i inventory jenkins.yaml`
-4. When the repository changes are pushed to master and the Jenkins configuration has been updated, initialise a new build in the Lavinia-client/Lavinia-api branch.
