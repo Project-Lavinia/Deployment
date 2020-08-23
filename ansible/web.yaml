@@ -62,9 +62,15 @@
           mode: 0755
           state: directory
           recurse: yes
+
+      - name: Add additional SSH keys
+        authorized_key:
+          user: centos
+          state: present
+          key: "{{ lookup('file', '~/.ssh/jenkins/id_rsa.pub') }}"
       
       - name: Allow Nginx to serve web root
-        command: sudo chcon -R -t httpd_sys_content_t "{{ web_root }}"
+        command: chcon -R -t httpd_sys_content_t "{{ web_root }}"
     
       - name: Enable httpd_can_network_connect
         seboolean:

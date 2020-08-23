@@ -83,6 +83,12 @@
         enabled: true
         state: started
 
+    - name: Add additional SSH keys
+      authorized_key:
+        user: centos
+        state: present
+        key: "{{ lookup('file', '~/.ssh/jenkins/id_rsa.pub') }}"
+
     - name: Enable httpd_can_network_connect
       seboolean:
         name: httpd_can_network_connect

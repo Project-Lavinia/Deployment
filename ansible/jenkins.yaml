@@ -133,6 +133,11 @@
       dnf:
         name: ansible
         state: latest
+    
+    - name: Install Zip
+      dnf:
+        name: zip
+        state: latest
 
     - name: Install Nginx
       dnf:
