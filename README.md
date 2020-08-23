@@ -2,12 +2,10 @@
 This repository contains all deployment and server configuration details for Lavinia.
 
 ## Requirements
- <!--- I think terraform grabs this client automatically, but not sure.
- - Openstack client ( >= 5.3.1, `pip3 install python-openstackclient`)
-  -->
  - A linux machine/VM (This document will use Ubuntu as reference)
  - Terraform ( >= 0.13.0, [download page](https://www.terraform.io/downloads.html))
  - Ansible ( >= 3.8.2, `apt-get install ansible`)
+ - Openstack client (should be installed automatically by terraform, >= 5.3.1, `pip3 install python-openstackclient`)
  - An NREC API password
  - A Lavinia SSH key (If contributing to the current setup)
  - A registered domain name (If setting up new instance)
