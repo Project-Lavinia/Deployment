@@ -8,6 +8,9 @@
     - private.yaml
 
   vars:
+    # Repository
+    api_repo: Project-Lavinia/Lavinia-api
+
     # Security
     security_sudoers_passwordless:
       - centos
@@ -76,12 +79,6 @@
         src: templates/api.service.j2
         dest: /etc/systemd/system/api.service
       notify: Refresh API service
-    
-    - name: Start API service
-      service:
-        name: api
-        enabled: true
-        state: started
 
     - name: Add additional SSH keys
       authorized_key:
@@ -102,6 +99,37 @@
     - role: certbot
   
   tasks:
+    - name: Install unzip
+      dnf:
+        name: unzip
+        state: latest
+
+    - name: Check if .Net Core directory is empty
+      find:
+        paths: "{{ netcore_path }}/"
+      register: filesFound
+    
+    - name: Get latest release link
+      when: filesFound.matched == 0
+      command: 'curl -s https://api.github.com/repos/{{ api_repo }}/releases/latest \
+                | grep "browser_download_url.*zip" \
+                | cut -d : -f 2,3 \
+                | tr -d \"'
+      register: releaseUrl
+
+    - name: Download latest release
+      when: filesFound.matched == 0
+      unarchive:
+        remote_src: yes
+        src: "{{ releaseUrl }}"
+        dest: "{{ netcore_path }}/"
+    
+    - name: Start API service
+      service:
+        name: api
+        enabled: true
+        state: started
+      
     - name: Install Nginx
       dnf:
         name: nginx
