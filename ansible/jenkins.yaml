@@ -139,6 +139,11 @@
         name: zip
         state: latest
 
+    - name: Install Xvfb
+      dnf:
+        name: Xvfb
+        state: latest
+
     - name: Install Nginx
       dnf:
         name: nginx
