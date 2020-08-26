@@ -139,10 +139,19 @@
         name: zip
         state: latest
 
-    - name: Install Xvfb
+    - name: Install Cypress Dependencies
       dnf:
-        name: Xvfb
+        name: "{{ item }}"
         state: latest
+      loop:
+        - xorg-x11-server-Xvfb
+        - gtk2-devel
+        - gtk3-devel
+        - libnotify-devel
+        - GConf2
+        - nss
+        - libXScrnSaver
+        - alsa-lib
 
     - name: Install Nginx
       dnf:
