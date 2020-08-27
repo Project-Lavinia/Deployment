@@ -1,10 +1,13 @@
 /var/log/nginx/*log {
     create 0664 nginx root
-    daily
-    rotate 1
+    hourly 
+    rotate 168
     missingok
     notifempty
     compress
+    compresscmd /usr/bin/gpg
+    compressoptions --encrypt --default-key "{{ key_fingerprint }}" --always-trust --recipient "{{ letsencrypt_email }}"
+    compressext .gpg
     sharedscripts
     postrotate
         /bin/kill -USR1 `cat /run/nginx.pid 2>/dev/null` 2>/dev/null || true

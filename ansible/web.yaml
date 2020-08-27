@@ -164,10 +164,31 @@
           name: nginx
           enabled: true
           state: started
-      
-      - name: Copy logrotate config
+
+      - name: Create GPG directory
+        file:
+          path: /var/gpg
+          state: directory
+          recurse: yes
+          mode: 0700
+    
+      - name: Copy gpg keys
         copy:
-          src: templates/logrotate.conf
+          src: gpg/lavinia.key
+          dest: /var/gpg/lavinia.key
+          mode:  0600
+
+      - name: Make sure the GPG config exists
+        command: "gpg --list-keys"
+        args:
+          creates: "~/.gnupg"
+
+      - name: Import public key
+        command: "gpg --import /var/gpg/lavinia.key"
+        
+      - name: Copy logrotate config
+        template:
+          src: templates/logrotate.conf.j2
           dest: /etc/logrotate.d/nginx
           mode: 0644
         notify: Restart Nginx

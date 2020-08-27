@@ -8,3 +8,4 @@ keystone_rc.sh
 tf_ansible_vars.yaml
 clients.txt
 apis.txt
+gpg
