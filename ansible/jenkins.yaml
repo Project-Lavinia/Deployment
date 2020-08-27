@@ -162,16 +162,119 @@
       template:
         src: templates/jenkins.conf.j2
         dest: /etc/nginx/nginx.conf
-      notify: Restart Nginx
-    
+      notify:
+        - Restart Nginx
+        - Restart Nginx Amplify
+
+    - name: Allow Nginx to read certificates
+      file:
+        path: /etc/letsencrypt/live
+        state: directory
+        recurse: yes
+        group: nginx
+        mode: 0750
+
+    - name: Allow Nginx to read certificates
+      file:
+        path: /etc/letsencrypt/archive
+        state: directory
+        recurse: yes
+        group: nginx
+        mode: 0750
+
+    - name: Allow Nginx to read own config
+      file:
+        path: /etc/nginx
+        state: directory
+        recurse: yes
+        group: nginx
+
     - name: Start Nginx
       service:
         name: nginx
         enabled: true
         state: started
+    
+    - name: Check if Service Exists
+      stat: path=/etc/init.d/amplify-agent
+      register: amplify_service
+
+    - name: Add Nginx signing key
+      rpm_key:
+        key: http://nginx.org/keys/nginx_signing.key
+      when: not amplify_service.stat.exists
+
+    - name: Add Amplify repo
+      yum_repository:
+        description: nginx repo
+        name: nginx-amplify
+        baseurl: http://packages.amplify.nginx.com/centos/8/$basearch
+        gpgcheck: yes
+      when: not amplify_service.stat.exists
+
+    - name: Install Nginx Amplify
+      dnf:
+        name: nginx-amplify-agent
+        state: latest
+        update_cache: yes
+      when: not amplify_service.stat.exists
+
+    - name: Copy config
+      copy:
+        remote_src: yes
+        src: /etc/amplify-agent/agent.conf.default
+        dest: /etc/amplify-agent/agent.conf
+        mode: 0644
+      when: not amplify_service.stat.exists
+
+    - name: Insert API key
+      replace:
+        path: /etc/amplify-agent/agent.conf
+        regexp: 'api_key.*$'
+        replace: 'api_key = {{ amplify_key }}'
+      when: not amplify_service.stat.exists
+    
+    - name: Copy stub_status
+      copy:
+        src: templates/stub_status.conf
+        dest: /etc/nginx/conf.d/stub_status.conf
+        mode: 0644
+      when: not amplify_service.stat.exists
+      notify:
+        - Restart Nginx
+        - Restart Nginx Amplify
+
+    - name: Start Amplify agent
+      service:
+        name: amplify-agent
+        enabled: true
+        state: started
+      when: not amplify_service.stat.exists
+    
+    - name: get service facts
+      service_facts:
+
+    - name: Open port 80
+      firewalld:
+        immediate: yes
+        port: 80/tcp
+        state: enabled
+      when: ansible_facts.services["firewalld.service"].state == "started"
+
+    - name: Open port 443
+      firewalld:
+        immediate: yes
+        port: 443/tcp
+        state: enabled
+      when: ansible_facts.services["firewalld.service"].state == "started"
 
   handlers:
     - name: Restart Nginx
       service:
         name: nginx
+        state: restarted
+
+    - name: Restart Nginx Amplify
+      service:
+        name: amplify-agent
         state: restarted
