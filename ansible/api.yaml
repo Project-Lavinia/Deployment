@@ -213,7 +213,7 @@
         src: templates/logrotate.conf.j2
         dest: /etc/logrotate.d/nginx
         mode: 0644
-      notify: Restart Nginx
+      notify: Reload Logrotate
     
     - name: Check if Service Exists
       stat: path=/etc/init.d/amplify-agent
@@ -305,4 +305,8 @@
         name: api
         enabled: yes
         state: restarted
+
+    - name: Reload Logrotate
+      command:
+        cmd: logrotate /etc/logrotate.d/nginx
       
