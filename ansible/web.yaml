@@ -100,7 +100,7 @@
     
     - name: Get latest release link
       when: filesFound.matched == 0
-      command: 'curl -s https://api.github.com/repos/{{ client_repo }}/releases/latest \
+      shell: 'curl -s https://api.github.com/repos/{{ client_repo }}/releases/latest \
                 | grep "browser_download_url.*zip" \
                 | cut -d : -f 2,3 \
                 | tr -d \"'
@@ -110,7 +110,7 @@
       when: filesFound.matched == 0
       unarchive:
         remote_src: yes
-        src: "{{ releaseUrl }}"
+        src: "{{ releaseUrl.stdout }}"
         dest: "{{ web_root }}/"
 
     - name: Install Nginx
