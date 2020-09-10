@@ -165,6 +165,13 @@
         enabled: true
         state: started
 
+    - name: Execute logrotate hourly
+      copy:
+        src: /etc/cron.daily/logrotate
+        dest: /etc/cron.hourly/
+        remote_src: yes
+        mode: 0755
+
     - name: Create GPG directory
       file:
         path: /var/gpg
@@ -279,4 +286,4 @@
 
     - name: Reload Logrotate
       command:
-        cmd: logrotate /etc/logrotate.d/nginx
+        cmd: logrotate -v /etc/logrotate.conf

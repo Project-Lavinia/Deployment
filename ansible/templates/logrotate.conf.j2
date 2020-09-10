@@ -2,10 +2,11 @@
     create 0664 nginx root
     hourly 
     rotate 168
+    shred
     missingok
     notifempty
     compress
-    compresscmd /usr/bin/gpg
+    compresscmd /usr/bin/gpg2
     compressoptions --encrypt --default-key "{{ key_fingerprint }}" --always-trust --recipient "{{ letsencrypt_email }}"
     compressext .gpg
     sharedscripts

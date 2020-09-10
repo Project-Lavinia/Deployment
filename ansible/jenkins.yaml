@@ -309,4 +309,4 @@
 
     - name: Reload Logrotate
       command:
-        cmd: logrotate /etc/logrotate.d/nginx
+        cmd: logrotate -v /etc/logrotate.conf
