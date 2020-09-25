@@ -62,6 +62,22 @@ resource "openstack_dns_recordset_v2" "lb_web_aaaa_record" {
     records     = [ "${openstack_compute_instance_v2.load_balancer_instance.access_ip_v6}" ]
 }
 
+resource "openstack_dns_recordset_v2" "lb_www_web_a_record" {
+    zone_id     = openstack_dns_zone_v2.lavinia_no.id
+    count       = 1
+    name        = "www.${var.zone_name}."
+    type        = "A"
+    records     = [ "${openstack_compute_instance_v2.load_balancer_instance.access_ip_v4}" ]
+}
+
+resource "openstack_dns_recordset_v2" "lb_www_web_aaaa_record" {
+    zone_id     = openstack_dns_zone_v2.lavinia_no.id
+    count       = 1
+    name        = "www.${var.zone_name}."
+    type        = "AAAA"
+    records     = [ "${openstack_compute_instance_v2.load_balancer_instance.access_ip_v6}" ]
+}
+
 resource "openstack_dns_recordset_v2" "lb_api_a_record" {
     zone_id     = openstack_dns_zone_v2.lavinia_no.id
     count       = 1

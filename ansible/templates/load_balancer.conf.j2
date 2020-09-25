@@ -92,6 +92,11 @@ http {
         return 301 https://$host$request_uri;
     }
 
+    server {
+        server_name www.{{ client_endpoint }};
+        return 301 https://{{ client_endpoint }}$request_uri;
+    }
+
     upstream api {
         {% for url in api_urls%}
         server {{ url }}:443 fail_timeout=0;

@@ -14,6 +14,7 @@
     # Domains
     api_endpoint: "api.{{ zone_name }}"
     client_endpoint: "{{ zone_name }}"
+    www_client_endpoint: "www.{{ zone_name }}"
 
     # Certbot/Let's Encrypt
     certbot_install_from_source: false
@@ -24,6 +25,7 @@
       - domains:
         - "{{ api_endpoint }}"
         - "{{ client_endpoint }}"
+        - "{{ www_client_endpoint }}"
 
 
   pre_tasks:

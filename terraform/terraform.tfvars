@@ -7,7 +7,7 @@ allow_ssh_from_v6 = [
 ]
 allow_ssh_from_v4 = [
   "84.234.132.133/32",
-  "46.212.99.245/32"
+  "78.156.3.46/32"
 ]
 
 # This is needed to access the instance over http
