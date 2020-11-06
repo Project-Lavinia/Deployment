@@ -32,13 +32,8 @@
     dotnet_package: "dotnet-sdk-3.1"
     
     # Certbot/Let's Encrypt
-    certbot_install_from_source: false
-    certbot_pkg_mgr: dnf
-    certbot_admin_email: "{{ letsencrypt_email }}"
-    certbot_create_if_missing: true
-    certbot_certs:
-      - domains:
-        - "{{ jenkins_endpoint }}"
+    domains:
+      - "{{ jenkins_endpoint }}"
 
 
   pre_tasks:
@@ -121,9 +116,10 @@
     - role: geerlingguy.java
     - role: geerlingguy.jenkins
     - role: ocha.yarn
-    - role: certbot
   
   tasks:
+    - include_tasks: certbot.yaml
+
     - name: Install .Net Core
       dnf:
         name: dotnet-sdk-3.1

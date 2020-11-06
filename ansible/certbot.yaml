@@ -1,0 +1,15 @@
+- name: Download certbot-auto
+  get_url:
+    url: https://dl.eff.org/certbot-auto
+    dest: /bin/certbot-auto
+    mode: 0755
+
+- name: Install and set up certbot-auto
+  command: "certbot-auto -n --nginx -m {{ letsencrypt_email }} -d {{ domains | join(' -d ')}}"
+
+- name: Set up certbot auto renewal
+  cron:
+    name: "certbot renewal"
+    minute: "0"
+    hour: "3"
+    job: "certbot-auto renew --nginx"

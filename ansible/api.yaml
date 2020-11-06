@@ -26,13 +26,8 @@
     api_ip_addr: "{{ api_ip + ':' + api_http_port|string }}"
 
     # Certbot/Let's Encrypt
-    certbot_install_from_source: false
-    certbot_pkg_mgr: dnf
-    certbot_admin_email: "{{ letsencrypt_email }}"
-    certbot_create_if_missing: true
-    certbot_certs:
-      - domains:
-        - "{{ api_endpoint }}"
+    domains:
+      - "{{ api_endpoint }}"
 
 
   pre_tasks:
@@ -101,9 +96,10 @@
     - role: geerlingguy.security
     - role: dev-sec.ssh-hardening
     - role: geerlingguy.git
-    - role: certbot
   
   tasks:
+    - include_tasks: certbot.yaml
+
     - name: Install unzip
       dnf:
         name: unzip

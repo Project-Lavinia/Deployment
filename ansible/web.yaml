@@ -23,13 +23,8 @@
     web_endpoint: "{{ inventory_hostname + '.' + zone_name }}"
     
     # Certbot/Let's Encrypt
-    certbot_install_from_source: false
-    certbot_pkg_mgr: dnf
-    certbot_admin_email: "{{ letsencrypt_email }}"
-    certbot_create_if_missing: true
-    certbot_certs:
-      - domains:
-        - "{{ web_endpoint }}"
+    domains:
+      - "{{ web_endpoint }}"
 
 
   pre_tasks:
@@ -85,9 +80,10 @@
     - role: geerlingguy.security
     - role: dev-sec.ssh-hardening
     - role: geerlingguy.git
-    - role: certbot
   
   tasks:
+    - include_tasks: certbot.yaml
+
     - name: Install unzip
       dnf:
         name: unzip
