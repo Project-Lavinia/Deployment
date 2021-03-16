@@ -22,7 +22,7 @@ This repository contains all deployment and server configuration details for Lav
         key_fingerprint: <Public key fingerprint>
     ```
      (Public key fingerprint will be generated later, if setting up a new instance)
-4. In `Deployment/ansible`, setup the ansible inventory as per [this guide](https://docs.nrec.no/terraform-part4.html#ansible-inventory-from-terraform-state) (The inventory directory should have the path `Deployment/ansible/inventory`)
+4. In `Deployment/terraform`, setup the ansible inventory as per [this guide](https://docs.nrec.no/terraform-part4.html#ansible-inventory-from-terraform-state) (The inventory directory should have the path `Deployment/terraform/inventory`)
 5. In `Deployment/terraform/terraform.tfvars` modify which IPs should have http/ssh access to the servers.
 6. In `Deployment/terraform/variables.tf` modify the flavour and number of each server type, as well as the domain that should be used.
 7. Go through the rest of the terraform files and ensure that you are happy with the settings.
@@ -38,7 +38,7 @@ This repository contains all deployment and server configuration details for Lav
 6. Use `gpg --list-key` to get the fingerprint of your key, and add it to the `Deployment/ansible/private.yaml` file.
 7. Log into your domain registrar and change the name servers of your domain as according to [this guide](https://docs.nrec.no/dns.html#when-to-use-the-dns-service). (If you encounter problems, try using ns1.uh-iaas.no and ns2.uh-iaas.no, instead of the nrec domain)
 8. In `Deployment/terraform` do `terraform apply`
-9. In `Deployment/ansible` do `.\update_all.sh`
+9. Then do `.\update_all.sh`
 10. Open `https://jenkins.<your domain>` in your browser
 11. In Jenkins, log in with username: admin, password: admin, and **immediately change the password**
 12. In Jenkins, install the following jenkins plugins:
@@ -90,7 +90,25 @@ It is safe to modify both the number of web and api instanced at the same time, 
 
 1. Modify the number of instances in `Deployment/terraform/variables.tf`
 2. In the `Deployment/terraform` directory, use the command `terraform apply`
-3. In the `Deployment/ansible` directory, do:
-    1. `ansible-playbook -i inventory api.yaml` or `ansible-playbook -i inventory web.yaml`
-    2. `ansible-playbook -i inventory load_balancer.yaml`
-    3. `ansible-playbook -i inventory jenkins.yaml`
+3. Then do:
+    1. `ansible-playbook -i inventory ../ansible/api.yaml` or `ansible-playbook -i inventory ../ansible/web.yaml`
+    2. `ansible-playbook -i inventory ../ansible/load_balancer.yaml`
+    3. `ansible-playbook -i inventory ../ansible/jenkins.yaml`
+
+
+## Handling issues
+
+### If you get an error stating that the snap seeding progress is not complete
+1. Restart the playbook, it should work the second time around
+
+### If nginx is not able to start, the issue is most likely that the ports are already bound
+1. SSH into the server
+2. Run `sudo netstat -tulpn`, making a note of the PID of the service using the 80/TCP and 443/TCP ports (probably the nginx service)
+3. Run `sudo kill -2 <PID>`
+4. Rerun the playbook
+
+### If you get an error while running the playbooks stating that Snap "core" has "install-snap" change in progress.
+1. SSH into the related server
+2. Run `snap changes` to identify the task that has status `Doing`, making a note of the related task ID.
+3. Run `sudo snap abort <task ID>`
+4. Rerun the playbook
