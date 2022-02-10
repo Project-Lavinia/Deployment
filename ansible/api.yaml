@@ -61,9 +61,14 @@
         name: python2
         state: latest
     
-    - name: Install .Net Core
+    - name: Install .Net Core 3.1
       dnf:
         name: dotnet-sdk-3.1
+        state: latest
+
+    - name: Install .Net Core 6.0
+      dnf:
+        name: dotnet-sdk-6.0
         state: latest
       
     - name: Create .Net Core directory
